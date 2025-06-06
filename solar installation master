@@ -1,0 +1,2000 @@
+.combiner-source {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            border: 3px solid #047857;
+        }
+
+        .grid-cell.combiner {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            border: 2px solid #047857;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .ghost-preview {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0.8;
+            z-index: 1000;
+            font-size: 3em;
+            filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+            transform: translate(-50%, -180%);
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            padding: 10px;
+        }
+
+        .scroll-indicator {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(102, 126, 234, 0.8);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1001;
+        }: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Solar Installation Master</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            color: #333;
+            overflow-x: hidden;
+            padding: 10px 10px 100px 10px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            max-width: 1000px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            margin: 10px auto;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .game-header h1 {
+            color: #5a67d8;
+            font-size: clamp(1.5em, 4vw, 2.5em);
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-header p {
+            color: #666;
+            font-size: clamp(0.9em, 2vw, 1.1em);
+        }
+
+        .help-link {
+            margin-top: 10px;
+            color: #5a67d8;
+            cursor: pointer;
+            font-size: clamp(0.9em, 2vw, 1em);
+        }
+
+        .help-link:hover {
+            text-decoration: underline;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            text-align: center;
+            flex: 1;
+            min-width: 100px;
+            transition: transform 0.2s;
+        }
+
+        .stat-box:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-label {
+            font-size: clamp(0.7em, 1.5vw, 0.9em);
+            opacity: 0.9;
+        }
+
+        .stat-value {
+            font-size: clamp(1.2em, 2.5vw, 1.5em);
+            font-weight: bold;
+        }
+
+        .game-area {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .challenge-info {
+            background: #edf2f7;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .challenge-info h3 {
+            color: #5a67d8;
+            margin-bottom: 10px;
+            font-size: clamp(1em, 2vw, 1.2em);
+        }
+
+        .challenge-info p {
+            font-size: clamp(0.9em, 1.8vw, 1em);
+        }
+
+        .component-tray {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .tray-label {
+            margin-bottom: 10px;
+            color: #4a5568;
+            font-weight: bold;
+            font-size: clamp(0.9em, 2vw, 1em);
+        }
+
+        .component-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 15px;
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+
+        .component-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .component-label {
+            font-size: clamp(0.8em, 1.5vw, 0.9em);
+            color: #4a5568;
+        }
+
+        .draggable-component {
+            width: clamp(60px, 12vw, 80px);
+            height: clamp(60px, 12vw, 80px);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(2em, 4vw, 2.5em);
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+            user-select: none;
+        }
+
+        .draggable-component:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .draggable-component.selected {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .panel-source {
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+            border: 3px solid #0D47A1;
+        }
+
+        .inverter-source {
+            background: linear-gradient(135deg, #FFA726 0%, #FF9800 100%);
+            border: 3px solid #F57C00;
+        }
+
+        .combiner-source {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            border: 3px solid #047857;
+        }
+
+        .roof-container {
+            background: linear-gradient(135deg, #8B7355 0%, #6B5B45 100%);
+            border-radius: 10px;
+            padding: clamp(10px, 2vw, 20px);
+            margin: 0 auto 20px;
+            max-width: 650px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .installation-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: clamp(4px, 1vw, 8px);
+            margin: 0 auto;
+            max-width: 600px;
+        }
+
+        .grid-cell {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.2em, 3vw, 1.8em);
+            position: relative;
+            user-select: none;
+        }
+
+        .grid-cell:hover:not(.obstacle) {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .grid-cell.preview-valid {
+            background: rgba(76, 175, 80, 0.5);
+            border: 2px solid #4CAF50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+
+        .grid-cell.preview-invalid {
+            background: rgba(244, 67, 54, 0.5);
+            border: 2px solid #F44336;
+            box-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
+        }
+
+        .grid-cell.panel {
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+            border: 2px solid #0D47A1;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .grid-cell.inverter {
+            background: linear-gradient(135deg, #FFA726 0%, #FF9800 100%);
+            border: 2px solid #F57C00;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .grid-cell.combiner {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            border: 2px solid #047857;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .grid-cell.obstacle {
+            cursor: not-allowed;
+        }
+
+        .grid-cell.chimney {
+            background: linear-gradient(135deg, #424242 0%, #212121 100%);
+            border: 2px solid #000;
+        }
+
+        .grid-cell.vent {
+            background: radial-gradient(circle, #757575 0%, #424242 100%);
+            border: 2px solid #212121;
+            border-radius: 50%;
+        }
+
+        .grid-cell.skylight {
+            background: linear-gradient(135deg, #B3E5FC 0%, #81D4FA 100%);
+            border: 2px solid #0288D1;
+        }
+
+        .grid-cell.shadow {
+            background: linear-gradient(135deg, rgba(46, 125, 50, 0.3) 0%, rgba(27, 94, 32, 0.5) 100%);
+            border: 2px solid rgba(46, 125, 50, 0.6);
+            position: relative;
+        }
+        
+        .grid-cell.shadow::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(0, 0, 0, 0.1) 10px,
+                rgba(0, 0, 0, 0.1) 20px
+            );
+            border-radius: 3px;
+        }
+
+        .grid-cell.antenna {
+            background: linear-gradient(135deg, #9E9E9E 0%, #616161 100%);
+            border: 2px solid #424242;
+        }
+
+        .grid-cell.panel:hover,
+        .grid-cell.inverter:hover,
+        .grid-cell.combiner:hover {
+            filter: brightness(1.1);
+            cursor: pointer;
+        }
+
+        @media (min-width: 769px) {
+            .placement-mode.active ~ .roof-container .grid-cell.panel:hover,
+            .placement-mode.active ~ .roof-container .grid-cell.inverter:hover,
+            .placement-mode.active ~ .roof-container .grid-cell.combiner:hover {
+                filter: brightness(0.8);
+                transform: scale(0.95);
+            }
+        }
+
+        .ghost-preview {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0.8;
+            z-index: 1000;
+            font-size: 3em;
+            filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+            transform: translate(-50%, -180%);
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            padding: 10px;
+        }
+
+        .scroll-indicator {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(102, 126, 234, 0.8);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1001;
+        }
+
+        .scroll-indicator.top {
+            top: 20px;
+        }
+
+        .scroll-indicator.bottom {
+            bottom: 20px;
+        }
+
+        .scroll-indicator.active {
+            opacity: 1;
+        }
+
+        .scroll-indicator.top {
+            top: 20px;
+        }
+
+        .scroll-indicator.bottom {
+            bottom: 20px;
+        }
+
+        .scroll-indicator.active {
+            opacity: 1;
+        }
+
+        .grid-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 0.9em;
+        }
+
+        .placement-mode {
+            background: #fef5e7;
+            border: 2px solid #f39c12;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .placement-mode.active {
+            display: block;
+            animation: pulse 1s infinite;
+        }
+
+        .placement-mode .pc-tip {
+            display: none;
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (min-width: 769px) {
+            .placement-mode .pc-tip {
+                display: block;
+            }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: clamp(8px, 2vw, 12px) clamp(15px, 3vw, 25px);
+            border: none;
+            border-radius: 8px;
+            font-size: clamp(0.8em, 2vw, 1em);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            user-select: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+        }
+
+        .btn-cancel {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            color: white;
+        }
+
+        .power-meter {
+            background: #2d3748;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .power-bar {
+            background: #4a5568;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .power-fill {
+            background: linear-gradient(90deg, #48bb78 0%, #38a169 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .tips {
+            background: #fef5e7;
+            border-left: 4px solid #f39c12;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .tips h4 {
+            color: #e67e22;
+            margin-bottom: 5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            text-align: center;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal h2 {
+            color: #5a67d8;
+            margin-bottom: 15px;
+        }
+
+        .modal p {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .quiz-option {
+            padding: 15px;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            user-select: none;
+        }
+
+        .quiz-option:hover {
+            background: #e2e8f0;
+            border-color: #cbd5e0;
+        }
+
+        .quiz-option.correct {
+            background: #c6f6d5;
+            border-color: #48bb78;
+        }
+
+        .quiz-option.incorrect {
+            background: #fed7d7;
+            border-color: #f56565;
+        }
+
+        .congrats-container {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .congrats-container h1 {
+            color: #48bb78;
+            font-size: 3em;
+            margin-bottom: 20px;
+            animation: bounce 1s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-30px);
+            }
+            60% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .trophy {
+            font-size: 8em;
+            animation: rotate 2s ease-in-out infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(-10deg); }
+            50% { transform: rotate(10deg); }
+            100% { transform: rotate(-10deg); }
+        }
+
+        .desktop-text {
+            display: none;
+        }
+
+        .mobile-text {
+            display: inline;
+        }
+
+        .mobile-only {
+            display: inline-block;
+        }
+
+        @media (min-width: 769px) {
+            .desktop-text {
+                display: inline;
+            }
+            
+            .mobile-text {
+                display: none;
+            }
+            
+            .mobile-only {
+                display: none;
+            }
+            
+            .grid-controls {
+                opacity: 0.8;
+                transition: opacity 0.3s;
+            }
+            
+            .grid-controls:hover {
+                opacity: 1;
+            }
+        }
+
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+            
+            .game-container {
+                padding: 15px;
+                border-radius: 15px;
+                margin: 5px;
+            }
+            
+            .component-container {
+                gap: 15px;
+            }
+            
+            .ghost-preview {
+                transform: translate(-50%, -250%);
+            }
+            
+            .roof-container {
+                padding: 10px;
+                margin: 0 auto 15px;
+            }
+            
+            .game-stats {
+                gap: 5px;
+                margin-bottom: 15px;
+            }
+            
+            .stat-box {
+                min-width: 80px;
+                padding: 8px 10px;
+            }
+            
+            .grid-controls {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-stats {
+                gap: 5px;
+            }
+            
+            .stat-box {
+                padding: 8px 10px;
+            }
+            
+            .installation-grid {
+                gap: 2px;
+                max-width: 100%;
+            }
+            
+            .grid-cell {
+                font-size: clamp(1em, 2.5vw, 1.5em);
+            }
+            
+            .game-container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1>⚡ Solar Installation Master ☀️</h1>
+            <p>Test your skills in solar panel and inverter installation!</p>
+            <p class="help-link" onclick="showHelp()">📖 Need help? Click here for instructions</p>
+        </div>
+
+        <div class="game-stats">
+            <div class="stat-box">
+                <div class="stat-label">Score</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Level</div>
+                <div class="stat-value" id="level">1</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Efficiency</div>
+                <div class="stat-value" id="efficiency">100%</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Jobs Done</div>
+                <div class="stat-value" id="jobs">0</div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="challenge-info" id="challengeInfo">
+                <h3>Current Challenge</h3>
+                <p id="challengeText">Loading first installation job...</p>
+            </div>
+
+            <div class="placement-mode" id="placementMode">
+                <strong>Placement Mode Active!</strong> Tap the roof where you want to place the <span id="placementType"></span>
+                <br><small>💡 Move near edges to auto-scroll • Avoid tree shadows for best efficiency!</small>
+                <div class="pc-tip">🖱️ Click empty cells to place • Click same type to remove • Right-click to undo • ESC to cancel</div>
+            </div>
+
+            <div class="component-tray">
+                <p class="tray-label">⬇️ <span class="mobile-text">Tap</span><span class="desktop-text">Click</span> to select component ⬇️</p>
+                <div class="component-container">
+                    <div class="component-wrapper">
+                        <div class="draggable-component panel-source" data-type="panel" onclick="selectComponent('panel')">
+                            ☀️
+                        </div>
+                        <span class="component-label">Solar Panel</span>
+                    </div>
+                    <div class="component-wrapper">
+                        <div class="draggable-component inverter-source" data-type="inverter" onclick="selectComponent('inverter')">
+                            ⚡
+                        </div>
+                        <span class="component-label">Inverter</span>
+                    </div>
+                    <div class="component-wrapper" id="combinerWrapper" style="display: none;">
+                        <div class="draggable-component combiner-source" data-type="combiner" onclick="selectComponent('combiner')">
+                            🔌
+                        </div>
+                        <span class="component-label">DC Combiner</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="roof-container">
+                <div class="installation-grid" id="grid">
+                    <!-- Grid cells will be generated here -->
+                </div>
+                <div class="grid-controls">
+                    <button class="btn btn-secondary btn-small" onclick="undoLastPlacement()" title="Undo last placement (Right-click)">
+                        ↶ Undo
+                    </button>
+                    <button class="btn btn-secondary btn-small" onclick="resetGrid()" title="Remove all components">
+                        🔄 Reset All
+                    </button>
+                </div>
+            </div>
+
+            <div class="power-meter">
+                <div>System Power Output</div>
+                <div class="power-bar">
+                    <div class="power-fill" id="powerFill">0 kW</div>
+                </div>
+                <small id="powerInfo">Select a component, then tap the roof to place it!</small>
+                <div id="shadeInfo" style="color: #f59e0b; margin-top: 5px; font-size: 0.85em; display: none;">
+                    ⚠️ <span id="shadeCount">0</span> panel(s) affected by tree shade (-70% power)
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" onclick="showHelp()">📖 How to Play</button>
+                <button class="btn btn-secondary" onclick="clearGrid()">Clear Roof</button>
+                <button class="btn btn-success" onclick="checkInstallation()">Complete Job</button>
+                <button class="btn btn-cancel" id="cancelBtn" onclick="cancelPlacement()" style="display:none;">Cancel</button>
+            </div>
+
+            <div class="tips">
+                <h4>💡 Pro Tip:</h4>
+                <p id="tipText">PC users: Click multiple times to place many components. Right-click to undo!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ghost preview element -->
+    <div class="ghost-preview" id="ghostPreview"></div>
+    
+    <!-- Scroll indicators -->
+    <div class="scroll-indicator top" id="scrollTop">↑ Auto-scrolling ↑</div>
+    <div class="scroll-indicator bottom" id="scrollBottom">↓ Auto-scrolling ↓</div>
+
+    <!-- Quiz Modal -->
+    <div class="modal" id="quizModal">
+        <div class="modal-content">
+            <h2 id="quizTitle">Industry Knowledge Check!</h2>
+            <p id="quizQuestion">Question will appear here</p>
+            <div class="quiz-options" id="quizOptions"></div>
+            <button class="btn btn-primary" onclick="closeQuiz()" style="display:none;" id="nextBtn">Next Challenge</button>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <h2 id="resultTitle">Job Complete!</h2>
+            <p id="resultText">Great work!</p>
+            <button class="btn btn-primary" onclick="nextLevel()">Next Job</button>
+        </div>
+    </div>
+
+    <!-- Congratulations Modal -->
+    <div class="modal" id="congratsModal">
+        <div class="modal-content congrats-container">
+            <div class="trophy">🏆</div>
+            <h1>Congratulations!</h1>
+            <h2>You're a Solar Installation Master!</h2>
+            <p style="font-size: 1.2em; margin: 20px 0;">
+                You've completed all 20 levels and proven your expertise in solar installation!
+            </p>
+            <div style="background: #f0f4f8; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h3 style="color: #5a67d8; margin-bottom: 15px;">Final Statistics</h3>
+                <p><strong>Total Score:</strong> <span id="finalScore">0</span></p>
+                <p><strong>Jobs Completed:</strong> <span id="finalJobs">0</span></p>
+                <p><strong>Average Efficiency:</strong> <span id="finalEfficiency">0</span>%</p>
+            </div>
+            <button class="btn btn-primary" onclick="restartGame()">Play Again</button>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal" id="helpModal">
+        <div class="modal-content">
+            <h2 style="color: #5a67d8; margin-bottom: 20px;">📖 How to Play</h2>
+            <div style="text-align: left; line-height: 1.8;">
+                <p><strong>1. Read the Challenge:</strong> Each level shows required panels, inverters & combiners (level 10+)</p>
+                <p><strong>2. Select Component:</strong> Tap/click ☀️ panels, ⚡ inverters, or 🔌 combiners to select</p>
+                <p><strong>3. Place on Roof:</strong> Tap/click empty roof cells (green = valid placement)</p>
+                <p><strong>4. Auto-Scroll:</strong> Move near top/bottom edges to scroll automatically</p>
+                <p><strong>5. Avoid Obstacles:</strong> Chimneys 🏭, vents 💨, skylights 🪟, tree shade 🌳</p>
+                <p><strong>6. Complete & Quiz:</strong> Click "Complete Job" and answer for bonus points!</p>
+            </div>
+            <div style="background: #f0f4f8; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                <p style="margin: 0;"><strong>💡 Mobile:</strong> Preview shows above your finger for easy placement!</p>
+                <p style="margin: 5px 0 0 0;"><strong>🖱️ PC Tips:</strong> Click multiple times to place many • Right-click to undo • Ctrl+Z also works!</p>
+                <p style="margin: 5px 0 0 0;"><strong>⚠️ Level 10+:</strong> DC combiners required! Panels near trees lose 70% power!</p>
+            </div>
+            <button class="btn btn-primary" onclick="closeHelp()" style="margin-top: 20px;">Got it!</button>
+        </div>
+    </div>
+
+    <script>
+        let score = 0;
+        let level = 1;
+        let efficiency = 100;
+        let jobsCompleted = 0;
+        let grid = [];
+        let selectedComponent = null;
+        let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        let autoScrollInterval = null;
+        let placementHistory = []; // Track placement history for undo
+
+        // Auto-scroll variables
+        const SCROLL_ZONE = 80; // pixels from edge to trigger scroll
+        const SCROLL_SPEED = 15; // pixels per frame
+
+        const challenges = [
+            // Levels 1-5: Basic installations
+            {
+                level: 1,
+                title: "First Residential Job",
+                description: "Install 4 panels and 1 inverter on a clear roof.",
+                requiredPanels: 4,
+                requiredInverters: 1,
+                obstacles: []
+            },
+            {
+                level: 2,
+                title: "Small Home Installation",
+                description: "Install 6 panels and 1 inverter. Watch out for the chimney!",
+                requiredPanels: 6,
+                requiredInverters: 1,
+                obstacles: [{type: 'chimney', positions: [20, 21]}]
+            },
+            {
+                level: 3,
+                title: "Suburban House",
+                description: "Install 8 panels and 1 inverter. Multiple obstacles present.",
+                requiredPanels: 8,
+                requiredInverters: 1,
+                obstacles: [{type: 'chimney', positions: [15, 16]}, {type: 'vent', positions: [35]}]
+            },
+            {
+                level: 4,
+                title: "Corner Lot Property",
+                description: "Install 10 panels and 2 inverters. Optimize your layout!",
+                requiredPanels: 10,
+                requiredInverters: 2,
+                obstacles: [{type: 'chimney', positions: [10, 11, 18, 19]}, {type: 'vent', positions: [30, 38]}]
+            },
+            {
+                level: 5,
+                title: "Large Residential",
+                description: "Install 12 panels and 2 inverters around obstacles.",
+                requiredPanels: 12,
+                requiredInverters: 2,
+                obstacles: [{type: 'chimney', positions: [14, 15, 22, 23]}, {type: 'vent', positions: [5, 45]}]
+            },
+            // Levels 6-10: Intermediate challenges
+            {
+                level: 6,
+                title: "Shaded Roof Section",
+                description: "Install 14 panels and 2 inverters. Some areas have tree shade.",
+                requiredPanels: 14,
+                requiredInverters: 2,
+                obstacles: [{type: 'shadow', positions: [0, 1, 2, 8, 9, 10]}, {type: 'chimney', positions: [28, 29]}]
+            },
+            {
+                level: 7,
+                title: "Multi-Level Roof",
+                description: "Install 16 panels and 3 inverters on a complex roof.",
+                requiredPanels: 16,
+                requiredInverters: 3,
+                obstacles: [{type: 'chimney', positions: [20, 21]}, {type: 'vent', positions: [13, 34, 42]}, {type: 'shadow', positions: [56, 57, 58]}]
+            },
+            {
+                level: 8,
+                title: "Commercial Building",
+                description: "Install 18 panels and 3 inverters. Large scale installation!",
+                requiredPanels: 18,
+                requiredInverters: 3,
+                obstacles: [{type: 'vent', positions: [11, 19, 27, 35]}, {type: 'chimney', positions: [24, 25, 32, 33]}]
+            },
+            {
+                level: 9,
+                title: "Warehouse Roof",
+                description: "Install 20 panels and 4 inverters. Industrial scale project.",
+                requiredPanels: 20,
+                requiredInverters: 4,
+                obstacles: [{type: 'vent', positions: [5, 13, 21, 29, 37, 45]}, {type: 'shadow', positions: [48, 49, 50, 56, 57, 58]}]
+            },
+            // Levels 10+: Advanced challenges with wiring requirements
+            {
+                level: 10,
+                title: "Complex Commercial - Wiring Required",
+                description: "Install 22 panels, 4 inverters, and 4 DC combiners. Connect everything!",
+                requiredPanels: 22,
+                requiredInverters: 4,
+                requiredCombiners: 4,
+                obstacles: [{type: 'skylight', positions: [18, 19, 26, 27]}, {type: 'chimney', positions: [12, 13]}, {type: 'vent', positions: [6, 38, 46]}]
+            },
+            // Levels 11-15: Advanced installations with realistic obstacles and wiring
+            {
+                level: 11,
+                title: "Office Complex with Shade",
+                description: "Install 24 panels, 5 inverters, and 5 combiners. Tree shade reduces output!",
+                requiredPanels: 24,
+                requiredInverters: 5,
+                requiredCombiners: 5,
+                obstacles: [{type: 'skylight', positions: [10, 11]}, {type: 'shadow', positions: [0, 1, 2, 8, 9, 16, 17]}, {type: 'antenna', positions: [28, 29]}, {type: 'vent', positions: [5, 53]}]
+            },
+            {
+                level: 12,
+                title: "Shopping Center Wiring",
+                description: "Install 26 panels, 5 inverters, and 6 combiners. Complex HVAC layout!",
+                requiredPanels: 26,
+                requiredInverters: 5,
+                requiredCombiners: 6,
+                obstacles: [{type: 'vent', positions: [4, 5, 12, 13, 20, 21]}, {type: 'antenna', positions: [25, 33]}, {type: 'shadow', positions: [48, 49, 56, 57]}]
+            },
+            {
+                level: 13,
+                title: "Hotel Rooftop System",
+                description: "Install 28 panels, 6 inverters, and 7 combiners. Heavy shade areas!",
+                requiredPanels: 28,
+                requiredInverters: 6,
+                requiredCombiners: 7,
+                obstacles: [{type: 'skylight', positions: [9, 10]}, {type: 'chimney', positions: [24, 25]}, {type: 'antenna', positions: [14, 38]}, {type: 'shadow', positions: [40, 41, 48, 49, 50]}]
+            },
+            {
+                level: 14,
+                title: "Hospital Critical Power",
+                description: "Install 30 panels, 6 inverters, and 8 combiners. Redundancy required!",
+                requiredPanels: 30,
+                requiredInverters: 6,
+                requiredCombiners: 8,
+                obstacles: [{type: 'vent', positions: [2, 10, 18, 26, 34]}, {type: 'antenna', positions: [15, 23]}, {type: 'skylight', positions: [20, 21]}]
+            },
+            {
+                level: 15,
+                title: "School Campus Grid",
+                description: "Install 32 panels, 7 inverters, and 8 combiners. Educational excellence!",
+                requiredPanels: 32,
+                requiredInverters: 7,
+                requiredCombiners: 8,
+                obstacles: [{type: 'chimney', positions: [11, 12]}, {type: 'skylight', positions: [26, 27]}, {type: 'vent', positions: [5, 16, 45]}, {type: 'shadow', positions: [0, 1, 8, 9, 56, 57]}]
+            },
+            // Levels 16-20: Master level challenges with full wiring complexity
+            {
+                level: 16,
+                title: "Airport Terminal Grid",
+                description: "Install 34 panels, 7 inverters, and 9 combiners. FAA compliance!",
+                requiredPanels: 34,
+                requiredInverters: 7,
+                requiredCombiners: 9,
+                obstacles: [{type: 'antenna', positions: [4, 12, 20, 28]}, {type: 'skylight', positions: [17, 18]}, {type: 'vent', positions: [7, 15, 31]}, {type: 'shadow', positions: [48, 49, 50, 56, 57, 58]}]
+            },
+            {
+                level: 17,
+                title: "Stadium Power System",
+                description: "Install 36 panels, 8 inverters, and 10 combiners. Championship setup!",
+                requiredPanels: 36,
+                requiredInverters: 8,
+                requiredCombiners: 10,
+                obstacles: [{type: 'skylight', positions: [8, 9, 16, 17]}, {type: 'antenna', positions: [22, 30]}, {type: 'vent', positions: [3, 13, 27]}, {type: 'chimney', positions: [40, 41]}]
+            },
+            {
+                level: 18,
+                title: "Data Center Redundant",
+                description: "Install 38 panels, 8 inverters, and 10 combiners. Maximum uptime!",
+                requiredPanels: 38,
+                requiredInverters: 8,
+                requiredCombiners: 10,
+                obstacles: [{type: 'vent', positions: [2, 10, 18, 26, 34, 42]}, {type: 'antenna', positions: [14, 22]}, {type: 'shadow', positions: [56, 57]}]
+            },
+            {
+                level: 19,
+                title: "Tech Campus Microgrid",
+                description: "Install 40 panels, 9 inverters, and 11 combiners. Smart grid ready!",
+                requiredPanels: 40,
+                requiredInverters: 9,
+                requiredCombiners: 11,
+                obstacles: [{type: 'skylight', positions: [4, 5, 12, 13]}, {type: 'antenna', positions: [9, 17, 25]}, {type: 'vent', positions: [7, 15, 23]}, {type: 'chimney', positions: [44, 45]}]
+            },
+            {
+                level: 20,
+                title: "Mega Factory Grid-Tie",
+                description: "Install 42 panels, 10 inverters, and 12 combiners. The ultimate system!",
+                requiredPanels: 42,
+                requiredInverters: 10,
+                requiredCombiners: 12,
+                obstacles: [{type: 'chimney', positions: [10, 11]}, {type: 'skylight', positions: [24, 25]}, {type: 'antenna', positions: [6, 14, 22]}, {type: 'vent', positions: [3, 35, 43]}, {type: 'shadow', positions: [48, 49, 56, 57]}]
+            }
+        ];
+
+        const quizQuestions = [
+            // Level 1-5: Basic Knowledge
+            {
+                level: 1,
+                question: "What is the ideal tilt angle for solar panels in most locations?",
+                options: ["15-20 degrees", "30-45 degrees", "60-75 degrees", "90 degrees"],
+                correct: 1
+            },
+            {
+                level: 2,
+                question: "What does MPPT stand for in solar inverters?",
+                options: ["Maximum Power Point Tracking", "Multi Phase Power Transfer", "Modular Panel Power Technology", "Main Power Protection Terminal"],
+                correct: 0
+            },
+            {
+                level: 3,
+                question: "Which type of solar panel is most efficient?",
+                options: ["Polycrystalline", "Thin-film", "Monocrystalline", "Amorphous"],
+                correct: 2
+            },
+            {
+                level: 4,
+                question: "What is the typical warranty period for solar panels?",
+                options: ["5-10 years", "10-15 years", "20-25 years", "30-35 years"],
+                correct: 2
+            },
+            {
+                level: 5,
+                question: "What safety equipment is essential for roof installations?",
+                options: ["Just gloves", "Safety harness and hard hat", "Sunglasses only", "Regular shoes"],
+                correct: 1
+            },
+            // Level 6-10: Intermediate Knowledge
+            {
+                level: 6,
+                question: "What is the minimum clearance required between panel rows to prevent shading?",
+                options: ["No clearance needed", "1-2 feet", "3-4 feet", "5-6 feet"],
+                correct: 2
+            },
+            {
+                level: 7,
+                question: "Which inverter type is best for partial shading conditions?",
+                options: ["String inverter", "Central inverter", "Microinverter", "Battery inverter"],
+                correct: 2
+            },
+            {
+                level: 8,
+                question: "What is the typical efficiency range of modern solar panels?",
+                options: ["5-10%", "15-22%", "30-40%", "50-60%"],
+                correct: 1
+            },
+            {
+                level: 9,
+                question: "How often should solar panels be professionally inspected?",
+                options: ["Monthly", "Annually", "Every 5 years", "Never"],
+                correct: 1
+            },
+            {
+                level: 10,
+                question: "What gauge wire is typically used for residential solar installations?",
+                options: ["18 AWG", "14 AWG", "10 AWG", "6 AWG"],
+                correct: 2
+            },
+            // Level 11-15: Advanced Knowledge
+            {
+                level: 11,
+                question: "What is the maximum DC voltage allowed in residential systems in most areas?",
+                options: ["300V", "600V", "1000V", "1500V"],
+                correct: 1
+            },
+            {
+                level: 12,
+                question: "What is the purpose of a DC combiner box?",
+                options: ["Cool the system", "Combine multiple strings safely", "Convert DC to AC", "Store excess energy"],
+                correct: 1
+            },
+            {
+                level: 13,
+                question: "How much power loss occurs in shade conditions?",
+                options: ["5-10%", "20-30%", "50-80%", "90-95%"],
+                correct: 2
+            },
+            {
+                level: 14,
+                question: "What is the recommended torque for panel mounting bolts?",
+                options: ["5-10 ft-lbs", "20-30 ft-lbs", "50-60 ft-lbs", "80-100 ft-lbs"],
+                correct: 1
+            },
+            {
+                level: 15,
+                question: "What is rapid shutdown requirement for rooftop solar?",
+                options: ["Shut down within 30 seconds", "Reduce voltage to 30V within 30 seconds", "Complete system shutdown in 1 minute", "No requirement exists"],
+                correct: 1
+            },
+            // Level 16-20: Expert Knowledge
+            {
+                level: 16,
+                question: "What is the temperature coefficient for most silicon panels?",
+                options: ["-0.2 to -0.3%/°C", "-0.4 to -0.5%/°C", "-0.6 to -0.7%/°C", "-0.8 to -0.9%/°C"],
+                correct: 1
+            },
+            {
+                level: 17,
+                question: "What is the NEC requirement for DC arc-fault protection?",
+                options: ["Not required", "Required for systems over 30V", "Required for all systems", "Required for systems over 80V"],
+                correct: 3
+            },
+            {
+                level: 18,
+                question: "What is the maximum fill ratio for DC conduits?",
+                options: ["20%", "40%", "60%", "80%"],
+                correct: 1
+            },
+            {
+                level: 19,
+                question: "What is the minimum wire bending radius for PV wire?",
+                options: ["2x diameter", "5x diameter", "8x diameter", "10x diameter"],
+                correct: 1
+            },
+            {
+                level: 20,
+                question: "What is the IEC standard for PV module testing?",
+                options: ["IEC 61215", "IEC 60529", "IEC 62109", "IEC 61730"],
+                correct: 0
+            }
+        ];
+
+        const tips = [
+            "Always check local building codes before installation!",
+            "String inverters are cost-effective for simple roof layouts.",
+            "Microinverters work best for complex shading situations.",
+            "Panel orientation affects energy production significantly.",
+            "Regular maintenance increases system lifespan by 20%!",
+            "Ground fault protection is crucial for safety.",
+            "Optimal panel spacing prevents shading between rows.",
+            "DC optimizers can boost performance in partial shade.",
+            "Use torque wrenches to ensure proper mounting pressure.",
+            "Check manufacturer specs for temperature coefficients.",
+            "Consider snow load when designing mounting systems.",
+            "Proper grounding prevents electrical hazards.",
+            "Monitor systems remotely for early issue detection.",
+            "Clean panels can produce 5-10% more energy!",
+            "Always use MC4 connectors for waterproof connections.",
+            "PC Tip: Right-click or Ctrl+Z to undo last placement!",
+            "PC Tip: Keep clicking to place multiple components quickly!",
+            "Level 10+ Tip: DC combiners are required to wire panels properly!",
+            "Shade Warning: Panels near trees lose 70% of their power output!",
+            "Each DC combiner can handle up to 8 solar panels.",
+            "Avoid placing panels adjacent to tree shade for maximum efficiency!"
+        ];
+
+        function initGame() {
+            createGrid();
+            loadChallenge();
+            updateStats();
+            rotateTips();
+            setupEventListeners();
+        }
+
+        function createGrid() {
+            const gridElement = document.getElementById('grid');
+            gridElement.innerHTML = '';
+            grid = [];
+            
+            // Grid size: 6 columns on mobile, 8 columns on desktop
+            // Always 8 rows to maintain consistent game area
+            const gridSize = 64; // Always 8x8 = 64 cells
+            
+            for (let i = 0; i < gridSize; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.dataset.index = i;
+                gridElement.appendChild(cell);
+                grid.push({ type: 'empty', element: cell });
+            }
+        }
+
+        function loadChallenge() {
+            const challenge = challenges[Math.min(level - 1, challenges.length - 1)];
+            
+            // Show/hide combiner component for levels 10+
+            const combinerWrapper = document.getElementById('combinerWrapper');
+            if (level >= 10) {
+                combinerWrapper.style.display = 'block';
+                document.getElementById('challengeText').innerHTML = `
+                    <strong>${challenge.title}</strong><br>
+                    ${challenge.description}<br>
+                    <small>Required: ${challenge.requiredPanels} panels, ${challenge.requiredInverters} inverter(s), ${challenge.requiredCombiners || 0} combiner(s)</small>
+                `;
+            } else {
+                combinerWrapper.style.display = 'none';
+                document.getElementById('challengeText').innerHTML = `
+                    <strong>${challenge.title}</strong><br>
+                    ${challenge.description}<br>
+                    <small>Required: ${challenge.requiredPanels} panels, ${challenge.requiredInverters} inverter(s)</small>
+                `;
+            }
+            
+            // Add obstacles - ensure they don't exceed grid bounds
+            challenge.obstacles.forEach(obstacle => {
+                obstacle.positions.forEach(pos => {
+                    if (grid[pos] && pos < 64) {
+                        grid[pos].type = 'obstacle';
+                        grid[pos].obstacleType = obstacle.type;
+                        grid[pos].element.className = `grid-cell obstacle ${obstacle.type}`;
+                        
+                        // Add icons for obstacles
+                        switch(obstacle.type) {
+                            case 'chimney':
+                                grid[pos].element.innerHTML = '🏭';
+                                break;
+                            case 'vent':
+                                grid[pos].element.innerHTML = '💨';
+                                break;
+                            case 'skylight':
+                                grid[pos].element.innerHTML = '🪟';
+                                break;
+                            case 'antenna':
+                                grid[pos].element.innerHTML = '📡';
+                                break;
+                            case 'shadow':
+                                grid[pos].element.innerHTML = '🌳';
+                                break;
+                        }
+                    }
+                });
+            });
+        }
+
+        function setupEventListeners() {
+            const gridElement = document.getElementById('grid');
+            
+            // Grid cell events
+            gridElement.addEventListener('click', handleGridClick);
+            gridElement.addEventListener('mousemove', handleMouseMove);
+            gridElement.addEventListener('mouseleave', handleMouseLeave);
+            
+            // Right-click for undo (PC only)
+            gridElement.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                if (!isMobile) {
+                    undoLastPlacement();
+                }
+            });
+            
+            // Touch events for mobile
+            gridElement.addEventListener('touchstart', handleTouchStart, { passive: false });
+            gridElement.addEventListener('touchmove', handleTouchMove, { passive: false });
+            gridElement.addEventListener('touchend', handleTouchEnd, { passive: false });
+            
+            // Keyboard shortcuts (PC only)
+            document.addEventListener('keydown', (e) => {
+                if (!isMobile) {
+                    if (e.key === 'Escape') {
+                        cancelPlacement();
+                    } else if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                        e.preventDefault();
+                        undoLastPlacement();
+                    }
+                }
+            });
+            
+            // Prevent right-click context menu on the entire game
+            document.querySelector('.game-container').addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
+        }
+
+        function selectComponent(type) {
+            // Remove previous selection
+            document.querySelectorAll('.draggable-component').forEach(comp => {
+                comp.classList.remove('selected');
+            });
+            
+            // Select new component
+            selectedComponent = type;
+            document.querySelector(`.${type}-source`).classList.add('selected');
+            
+            // Show placement mode indicator
+            document.getElementById('placementMode').classList.add('active');
+            
+            // Set appropriate component name
+            let componentName = '';
+            let componentIcon = '';
+            if (type === 'panel') {
+                componentName = 'Solar Panel';
+                componentIcon = '☀️';
+            } else if (type === 'inverter') {
+                componentName = 'Inverter';
+                componentIcon = '⚡';
+            } else if (type === 'combiner') {
+                componentName = 'DC Combiner';
+                componentIcon = '🔌';
+            }
+            
+            document.getElementById('placementType').textContent = `${componentName} ${componentIcon}`;
+            document.getElementById('cancelBtn').style.display = 'inline-block';
+            
+            // Update instructions based on device
+            if (isMobile) {
+                document.getElementById('powerInfo').textContent = `Now tap an empty cell to place the ${componentName}!`;
+            } else {
+                document.getElementById('powerInfo').textContent = `Click empty cells to place ${componentName}s. Right-click to undo!`;
+            }
+            
+            // Scroll roof into view on mobile
+            if (isMobile) {
+                setTimeout(() => {
+                    document.querySelector('.roof-container').scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center' 
+                    });
+                }, 100);
+            }
+        }
+
+        function cancelPlacement() {
+            selectedComponent = null;
+            document.querySelectorAll('.draggable-component').forEach(comp => {
+                comp.classList.remove('selected');
+            });
+            document.getElementById('placementMode').classList.remove('active');
+            document.getElementById('cancelBtn').style.display = 'none';
+            clearPreviews();
+            stopAutoScroll();
+        }
+
+        function checkAutoScroll(x, y) {
+            const viewportHeight = window.innerHeight;
+            const scrollTop = window.pageYOffset;
+            let scrollDelta = 0;
+            
+            // Hide all indicators first
+            document.getElementById('scrollTop').classList.remove('active');
+            document.getElementById('scrollBottom').classList.remove('active');
+            
+            // Check if near top of viewport
+            if (y < SCROLL_ZONE) {
+                scrollDelta = -SCROLL_SPEED;
+                document.getElementById('scrollTop').classList.add('active');
+            }
+            // Check if near bottom of viewport
+            else if (y > viewportHeight - SCROLL_ZONE) {
+                scrollDelta = SCROLL_SPEED;
+                document.getElementById('scrollBottom').classList.add('active');
+            }
+            
+            if (scrollDelta !== 0) {
+                startAutoScroll(scrollDelta);
+            } else {
+                stopAutoScroll();
+            }
+        }
+
+        function startAutoScroll(delta) {
+            if (!autoScrollInterval) {
+                autoScrollInterval = setInterval(() => {
+                    window.scrollBy(0, delta);
+                    
+                    // Update ghost preview position during scroll
+                    const ghost = document.getElementById('ghostPreview');
+                    if (ghost.style.display === 'block') {
+                        const rect = ghost.getBoundingClientRect();
+                        const element = document.elementFromPoint(rect.left, rect.top + 50);
+                        const cell = element ? element.closest('.grid-cell') : null;
+                        
+                        clearPreviews();
+                        if (cell) {
+                            const index = parseInt(cell.dataset.index);
+                            updatePreview(index);
+                        }
+                    }
+                }, 16); // ~60fps
+            }
+        }
+
+        function stopAutoScroll() {
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            }
+            // Hide scroll indicators
+            document.getElementById('scrollTop').classList.remove('active');
+            document.getElementById('scrollBottom').classList.remove('active');
+        }
+
+        function handleGridClick(e) {
+            const cell = e.target.closest('.grid-cell');
+            if (!cell) return;
+            
+            const index = parseInt(cell.dataset.index);
+            
+            if (selectedComponent) {
+                if (grid[index].type === 'empty') {
+                    placeComponent(index);
+                } else if (grid[index].type === selectedComponent && !isMobile) {
+                    // On PC, clicking the same type of component removes it
+                    removeComponent(index);
+                }
+            }
+        }
+
+        function removeComponent(index) {
+            if (grid[index].type === 'panel' || grid[index].type === 'inverter' || grid[index].type === 'combiner') {
+                // Store in history for undo
+                placementHistory.push({
+                    index: index,
+                    previousType: grid[index].type,
+                    previousContent: grid[index].element.innerHTML,
+                    wasRemoval: true
+                });
+                
+                grid[index].type = 'empty';
+                grid[index].element.className = 'grid-cell';
+                grid[index].element.innerHTML = '';
+                updatePowerOutput();
+            }
+        }
+
+        function handleMouseMove(e) {
+            if (!selectedComponent) return;
+            
+            const cell = e.target.closest('.grid-cell');
+            if (!cell) {
+                clearPreviews();
+                return;
+            }
+            
+            const index = parseInt(cell.dataset.index);
+            updatePreview(index);
+            
+            // Update ghost preview position
+            const ghost = document.getElementById('ghostPreview');
+            ghost.innerHTML = selectedComponent === 'panel' ? '☀️' : '⚡';
+            ghost.style.display = 'block';
+            ghost.style.left = e.clientX + 'px';
+            ghost.style.top = e.clientY + 'px';
+            
+            // Auto-scroll check
+            checkAutoScroll(e.clientX, e.clientY);
+        }
+
+        function handleMouseLeave() {
+            clearPreviews();
+            document.getElementById('ghostPreview').style.display = 'none';
+            stopAutoScroll();
+        }
+
+        function handleTouchStart(e) {
+            if (!selectedComponent) return;
+            e.preventDefault();
+            
+            const touch = e.touches[0];
+            const element = document.elementFromPoint(touch.clientX, touch.clientY);
+            const cell = element.closest('.grid-cell');
+            
+            if (cell) {
+                const index = parseInt(cell.dataset.index);
+                updatePreview(index);
+            }
+        }
+
+        function handleTouchMove(e) {
+            if (!selectedComponent) return;
+            e.preventDefault();
+            
+            const touch = e.touches[0];
+            const element = document.elementFromPoint(touch.clientX, touch.clientY);
+            const cell = element ? element.closest('.grid-cell') : null;
+            
+            clearPreviews();
+            if (cell) {
+                const index = parseInt(cell.dataset.index);
+                updatePreview(index);
+            }
+            
+            // Update ghost preview position (offset above finger)
+            const ghost = document.getElementById('ghostPreview');
+            ghost.innerHTML = selectedComponent === 'panel' ? '☀️' : '⚡';
+            ghost.style.display = 'block';
+            ghost.style.left = touch.clientX + 'px';
+            ghost.style.top = touch.clientY + 'px';
+            
+            // Auto-scroll check
+            checkAutoScroll(touch.clientX, touch.clientY);
+        }
+
+        function handleTouchEnd(e) {
+            if (!selectedComponent) return;
+            e.preventDefault();
+            
+            const touch = e.changedTouches[0];
+            const element = document.elementFromPoint(touch.clientX, touch.clientY);
+            const cell = element ? element.closest('.grid-cell') : null;
+            
+            if (cell) {
+                const index = parseInt(cell.dataset.index);
+                if (grid[index].type === 'empty') {
+                    placeComponent(index);
+                }
+            }
+            
+            clearPreviews();
+            document.getElementById('ghostPreview').style.display = 'none';
+            stopAutoScroll();
+        }
+
+        function updatePreview(index) {
+            clearPreviews();
+            
+            if (grid[index].type === 'empty') {
+                grid[index].element.classList.add('preview-valid');
+            } else if (grid[index].type === selectedComponent && !isMobile) {
+                // Show removal preview for same component type on PC
+                grid[index].element.classList.add('preview-invalid');
+                grid[index].element.style.opacity = '0.5';
+            } else {
+                grid[index].element.classList.add('preview-invalid');
+            }
+        }
+
+        function clearPreviews() {
+            document.querySelectorAll('.grid-cell').forEach(cell => {
+                cell.classList.remove('preview-valid', 'preview-invalid');
+                cell.style.opacity = '';
+            });
+        }
+
+        function placeComponent(index) {
+            if (grid[index].type !== 'empty' || !selectedComponent) return;
+            
+            // Store previous state for undo
+            placementHistory.push({
+                index: index,
+                previousType: 'empty',
+                previousContent: ''
+            });
+            
+            grid[index].type = selectedComponent;
+            grid[index].element.className = `grid-cell ${selectedComponent}`;
+            
+            // Set appropriate icon
+            if (selectedComponent === 'panel') {
+                grid[index].element.innerHTML = '☀️';
+            } else if (selectedComponent === 'inverter') {
+                grid[index].element.innerHTML = '⚡';
+            } else if (selectedComponent === 'combiner') {
+                grid[index].element.innerHTML = '🔌';
+            }
+            
+            updatePowerOutput();
+            
+            // On mobile, cancel placement after placing one item
+            // On PC, keep placement mode active for continuous placement
+            if (isMobile) {
+                stopAutoScroll();
+                cancelPlacement();
+            }
+        }
+
+        function undoLastPlacement() {
+            if (placementHistory.length === 0) return;
+            
+            const lastAction = placementHistory.pop();
+            const cell = grid[lastAction.index];
+            
+            if (lastAction.wasRemoval) {
+                // Undo a removal - restore the component
+                cell.type = lastAction.previousType;
+                cell.element.className = `grid-cell ${lastAction.previousType}`;
+                cell.element.innerHTML = lastAction.previousContent;
+            } else {
+                // Undo a placement - remove the component
+                if (cell.type === 'panel' || cell.type === 'inverter' || cell.type === 'combiner') {
+                    cell.type = lastAction.previousType;
+                    cell.element.className = 'grid-cell';
+                    cell.element.innerHTML = lastAction.previousContent;
+                }
+            }
+            
+            updatePowerOutput();
+        }
+
+        function resetGrid() {
+            if (confirm('Remove all placed components?')) {
+                clearGrid();
+                placementHistory = [];
+            }
+        }
+
+        function clearGrid() {
+            grid.forEach((cell, index) => {
+                if (cell.type !== 'obstacle') {
+                    cell.type = 'empty';
+                    cell.element.className = 'grid-cell';
+                    cell.element.innerHTML = '';
+                }
+            });
+            placementHistory = [];
+            updatePowerOutput();
+        }
+
+        function updatePowerOutput() {
+            const panels = grid.filter(cell => cell.type === 'panel').length;
+            const inverters = grid.filter(cell => cell.type === 'inverter').length;
+            const combiners = grid.filter(cell => cell.type === 'combiner').length;
+            
+            // Calculate panels affected by shade
+            let shadedPanels = 0;
+            grid.forEach((cell, index) => {
+                if (cell.type === 'panel') {
+                    // Check if panel is adjacent to shade
+                    const adjacentIndices = getAdjacentIndices(index);
+                    const isShaded = adjacentIndices.some(adj => 
+                        grid[adj] && grid[adj].obstacleType === 'shadow'
+                    );
+                    if (isShaded) shadedPanels++;
+                }
+            });
+            
+            // Update shade warning display
+            const shadeInfo = document.getElementById('shadeInfo');
+            const shadeCount = document.getElementById('shadeCount');
+            if (shadedPanels > 0) {
+                shadeInfo.style.display = 'block';
+                shadeCount.textContent = shadedPanels;
+            } else {
+                shadeInfo.style.display = 'none';
+            }
+            
+            // Calculate base power
+            const normalPanelPower = (panels - shadedPanels) * 0.4;
+            const shadedPanelPower = shadedPanels * 0.4 * 0.3; // 70% power loss in shade
+            const totalPanelPower = normalPanelPower + shadedPanelPower;
+            
+            // For levels 10+, require combiners for proper connection
+            let maxPower;
+            if (level >= 10) {
+                // Each combiner can handle up to 8 panels
+                const maxPanelsConnected = Math.min(panels, combiners * 8);
+                const connectedPower = (maxPanelsConnected / panels) * totalPanelPower;
+                maxPower = Math.min(connectedPower, inverters * 3);
+            } else {
+                maxPower = Math.min(totalPanelPower, inverters * 3);
+            }
+            
+            const percentage = panels > 0 ? (maxPower / totalPanelPower * 100) : 0;
+            
+            document.getElementById('powerFill').style.width = percentage + '%';
+            document.getElementById('powerFill').textContent = maxPower.toFixed(1) + ' kW';
+            
+            // Update power info messages
+            if (panels > 0 && inverters === 0) {
+                document.getElementById('powerInfo').textContent = '⚠️ No inverter connected!';
+            } else if (level >= 10 && panels > 0 && combiners === 0) {
+                document.getElementById('powerInfo').textContent = '⚠️ DC combiners required for wiring!';
+            } else if (level >= 10 && panels > combiners * 8) {
+                document.getElementById('powerInfo').textContent = '⚠️ Not enough combiners! Each handles 8 panels.';
+            } else if (panels === 0) {
+                document.getElementById('powerInfo').textContent = 'Select a component, then tap the roof to place it!';
+            } else {
+                document.getElementById('powerInfo').textContent = '✓ System operational!';
+            }
+        }
+
+        function getAdjacentIndices(index) {
+            const row = Math.floor(index / 8);
+            const col = index % 8;
+            const adjacent = [];
+            
+            // Check all 8 directions
+            if (row > 0) adjacent.push(index - 8); // top
+            if (row < 7) adjacent.push(index + 8); // bottom
+            if (col > 0) adjacent.push(index - 1); // left
+            if (col < 7) adjacent.push(index + 1); // right
+            if (row > 0 && col > 0) adjacent.push(index - 9); // top-left
+            if (row > 0 && col < 7) adjacent.push(index - 7); // top-right
+            if (row < 7 && col > 0) adjacent.push(index + 7); // bottom-left
+            if (row < 7 && col < 7) adjacent.push(index + 9); // bottom-right
+            
+            return adjacent.filter(i => i >= 0 && i < 64);
+        }
+
+        function checkInstallation() {
+            const challenge = challenges[Math.min(level - 1, challenges.length - 1)];
+            const panels = grid.filter(cell => cell.type === 'panel').length;
+            const inverters = grid.filter(cell => cell.type === 'inverter').length;
+            const combiners = grid.filter(cell => cell.type === 'combiner').length;
+            
+            let requirementsMet = panels >= challenge.requiredPanels && 
+                                 inverters >= challenge.requiredInverters;
+            
+            // Check combiner requirements for levels 10+
+            if (level >= 10) {
+                requirementsMet = requirementsMet && combiners >= (challenge.requiredCombiners || 0);
+            }
+            
+            if (requirementsMet) {
+                const connected = checkPanelConnections();
+                const efficiencyScore = connected ? 100 : 80;
+                
+                score += efficiencyScore * level * 10;
+                jobsCompleted++;
+                efficiency = Math.round((efficiency + efficiencyScore) / 2);
+                
+                showQuiz();
+            } else {
+                let message = `Not enough components! You need ${challenge.requiredPanels} panels and ${challenge.requiredInverters} inverter(s)`;
+                if (level >= 10) {
+                    message += ` and ${challenge.requiredCombiners} combiner(s)`;
+                }
+                alert(message + '.');
+            }
+        }
+
+        function checkPanelConnections() {
+            const panelIndices = grid.map((cell, index) => cell.type === 'panel' ? index : -1).filter(i => i !== -1);
+            const gridCols = 8; // Always 8 columns
+            
+            for (let i of panelIndices) {
+                const row = Math.floor(i / gridCols);
+                const col = i % gridCols;
+                const adjacent = [
+                    row > 0 ? i - gridCols : -1,
+                    row < 7 ? i + gridCols : -1,
+                    col > 0 ? i - 1 : -1,
+                    col < gridCols - 1 ? i + 1 : -1
+                ].filter(j => j >= 0 && panelIndices.includes(j));
+                
+                if (adjacent.length > 0) return true;
+            }
+            return false;
+        }
+
+        function showQuiz() {
+            // Get the quiz question for the current level
+            const quiz = quizQuestions.find(q => q.level === level) || 
+                        quizQuestions[Math.floor(Math.random() * quizQuestions.length)];
+                        
+            document.getElementById('quizTitle').textContent = 'Industry Knowledge Check!';
+            document.getElementById('quizQuestion').textContent = quiz.question;
+            
+            const optionsDiv = document.getElementById('quizOptions');
+            optionsDiv.innerHTML = '';
+            
+            quiz.options.forEach((option, index) => {
+                const optionEl = document.createElement('div');
+                optionEl.className = 'quiz-option';
+                optionEl.textContent = option;
+                optionEl.onclick = () => checkAnswer(index, quiz.correct);
+                optionsDiv.appendChild(optionEl);
+            });
+            
+            document.getElementById('quizModal').style.display = 'flex';
+        }
+
+        function checkAnswer(selected, correct) {
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach(opt => opt.onclick = null);
+            
+            if (selected === correct) {
+                options[selected].classList.add('correct');
+                score += 100 * level;
+                document.getElementById('quizTitle').textContent = '✓ Correct! Great job!';
+            } else {
+                options[selected].classList.add('incorrect');
+                options[correct].classList.add('correct');
+                document.getElementById('quizTitle').textContent = '✗ Incorrect, but now you know!';
+            }
+            
+            document.getElementById('nextBtn').style.display = 'block';
+            updateStats();
+        }
+
+        function closeQuiz() {
+            document.getElementById('quizModal').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+            showResult();
+        }
+
+        function showResult() {
+            document.getElementById('resultTitle').textContent = `Level ${level} Complete!`;
+            const levelScore = score - ((jobsCompleted - 1) * 1000);
+            document.getElementById('resultText').innerHTML = `
+                Excellent work! You earned ${levelScore.toLocaleString()} points.<br>
+                Efficiency rating: ${efficiency}%<br>
+                Ready for the next challenge?
+            `;
+            document.getElementById('resultModal').style.display = 'flex';
+        }
+
+        function nextLevel() {
+            if (level >= 20) {
+                showCongratulations();
+                return;
+            }
+            
+            level++;
+            placementHistory = []; // Clear placement history for new level
+            document.getElementById('resultModal').style.display = 'none';
+            createGrid();
+            loadChallenge();
+            updateStats();
+            updatePowerOutput();
+        }
+
+        function showCongratulations() {
+            document.getElementById('resultModal').style.display = 'none';
+            document.getElementById('finalScore').textContent = score.toLocaleString();
+            document.getElementById('finalJobs').textContent = jobsCompleted;
+            document.getElementById('finalEfficiency').textContent = efficiency;
+            document.getElementById('congratsModal').style.display = 'flex';
+        }
+
+        function restartGame() {
+            score = 0;
+            level = 1;
+            efficiency = 100;
+            jobsCompleted = 0;
+            selectedComponent = null;
+            placementHistory = [];
+            document.getElementById('congratsModal').style.display = 'none';
+            initGame();
+        }
+
+        function updateStats() {
+            document.getElementById('score').textContent = score.toLocaleString();
+            document.getElementById('level').textContent = level;
+            document.getElementById('efficiency').textContent = efficiency + '%';
+            document.getElementById('jobs').textContent = jobsCompleted;
+        }
+
+        function rotateTips() {
+            setInterval(() => {
+                const tip = tips[Math.floor(Math.random() * tips.length)];
+                document.getElementById('tipText').textContent = tip;
+            }, 8000);
+        }
+
+        function showHelp() {
+            document.getElementById('helpModal').style.display = 'flex';
+        }
+
+        function closeHelp() {
+            document.getElementById('helpModal').style.display = 'none';
+        }
+
+        // Initialize game on load
+        window.onload = initGame;
+    </script>
+</body>
+</html>
